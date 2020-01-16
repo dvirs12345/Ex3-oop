@@ -1,0 +1,28 @@
+package gameClient;
+
+import Server.Game_Server;
+import Server.game_service;
+import dataStructure.DGraph;
+import gui.Graph_Gui;
+import oop_dataStructure.OOP_DGraph;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class MyGameGUITest
+{
+    @org.junit.jupiter.api.Test
+    void init() throws JSONException, InterruptedException {
+        MyGameGUI mgg = new MyGameGUI();
+        mgg.init(0);
+        TimeUnit.SECONDS.sleep(60);
+    }
+
+    @org.junit.jupiter.api.Test
+    void initiateGame()
+    {
+
+    }
+}
