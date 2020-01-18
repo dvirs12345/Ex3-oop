@@ -1,26 +1,24 @@
 package gui;
 
+import algorithms.Graph_Algo;
+import dataStructure.edge_data;
+import dataStructure.graph;
+import dataStructure.node_data;
 import gameClient.Fruit;
 import gameClient.MyGameGUI;
 import gameClient.Robot;
 import org.json.JSONException;
-import org.json.JSONObject;
 import utils.StdDraw;
 
-import java.io.File;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.*;
-
-import algorithms.Graph_Algo;
-import dataStructure.*;
 
 /**
  * This class contains functions for drawing graphs.  
@@ -29,43 +27,67 @@ import dataStructure.*;
 public class Graph_Gui
 {
 	static graph g1; // The graph.
-	private double maxX , maxY, minX, minY; // size of the graph.
+	private double maxX , maxY, minX, minY; // Size of the graph.
 
 	public Graph_Gui() { ; }
 
 	public void drawTimer(double timer)
 	{
-		StdDraw.text(this.minX, this.maxY, Double.toString(timer));
+		StdDraw.text(this.minX+this.minX/100000, this.maxY+this.maxY/100000, Double.toString(timer));
 	}
 
+	/**
+	 *
+	 * @param fruits - List of Strings representing the fruits.
+	 * @return Array of fruits.
+	 * @throws JSONException
+	 */
 	public Fruit[] drawFruits(List<String> fruits) throws JSONException
 	{
 		Fruit[] fruities = new Fruit[fruits.size()];
-		String[] filename = {"apple.gif","","banana.gif"};
 		int counter = 0;
 
-		for(String robo : fruits)
+		for(String fru : fruits)
 		{
 			Fruit reut = new Fruit();
-			reut.init(robo);
+			reut.init(fru);
 			fruities[counter] = reut;
 			counter++;
 		}
 
-		File file = new File("yourfileName.gif");
-		String path = file.getAbsolutePath();
-		System.out.println(path);
-
-		for (Fruit rob : fruities)
-			StdDraw.picture(rob.pos.x(),rob.pos.y(), filename[(rob.type-1)*-1]);
-
+		drawFruits(fruities);
 		return fruities;
 	}
 
+	/**
+	 * Actually draws the fruits of the graph.
+	 * @param fruities - Array of the fruits to draw.
+	 */
+	public void drawFruits(Fruit[] fruities)
+	{
+		String[] filename = {"apple.gif","","banana.gif"};
+		for (Fruit rob : fruities)
+			StdDraw.picture(rob.pos.x(),rob.pos.y(), filename[(rob.type-1)*-1]);
+	}
+
+	/**
+	 * Clears the screen and draws the graph.
+	 */
+	public void repaint()
+	{
+		StdDraw.clear();
+		displayGraph(g1);
+	}
+
+	/**
+	 * Draws the robots.
+	 * @param robots - List of String representing the robots.
+	 * @return Array of the robots.
+	 * @throws JSONException
+	 */
 	public Robot[] drawRobots(List<String> robots) throws JSONException
 	{
 		Robot[] robos = new Robot[robots.size()];
-		String filename = "robot1.gif";
 		int counter = 0;
 
 		for(String robo : robots)
@@ -76,12 +98,25 @@ public class Graph_Gui
 			counter++;
 		}
 
-		for (Robot rob : robos)
-			StdDraw.picture(rob.pos.x(),rob.pos.y(), filename);
+		drawRobots(robos);
 
 		return robos;
 	}
 
+	/**
+	 * Actually draws the robots on the graph.
+	 * @param robots - Array of robots to draw.
+	 */
+	public void drawRobots(Robot[] robots)
+	{
+		String filename = "robot1.gif";
+		for (Robot rob : robots)
+			StdDraw.picture(rob.pos.x(),rob.pos.y(), filename);
+	}
+
+	/**
+	 * Makes the screen for choosing the scenario.
+	 */
  	public void makeScenerioWindow()
 	{
 		JFrame frame= new JFrame();
@@ -123,7 +158,9 @@ public class Graph_Gui
 				MyGameGUI mgg = new MyGameGUI();
 				try
 				{
-					mgg.init(Integer.parseInt(userNameTxt.getText()));
+					int scenario = Integer.parseInt(userNameTxt.getText());
+					frame.setVisible(false);
+					mgg.initiateGame(scenario);
 				}
 				catch (JSONException ex)
 				{
@@ -236,6 +273,7 @@ public class Graph_Gui
 			StdDraw.point(x, y);
 		}
 	}
+
 
 	private static double round(double value, int places)
 	{

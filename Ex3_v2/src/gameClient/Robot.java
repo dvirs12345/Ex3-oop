@@ -6,12 +6,12 @@ import utils.Point3D;
 
 public class Robot
 {
-    public int id;
+    public int id; // id
     public double value;
-    public int src;
-    public int dest;
-    private double speed = 1.0;
-    public Point3D pos;
+    public int src; // Source
+    public int dest; // destination
+    private double speed = 1.0; // Speed
+    public Point3D pos; // Position
 
     public Robot(){ ; }
 

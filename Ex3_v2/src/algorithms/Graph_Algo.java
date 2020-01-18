@@ -141,64 +141,64 @@ public class Graph_Algo implements graph_algorithms, Serializable
 	}
 	
 	/**
-	 * This function updates the weights of the nodes using the dijakstra algorithm 
+	 * This function updates the weights of the nodes using the dijkstra's algorithm
 	 * and then returns the length of the shortest path from src node to dest node.
-	 * for the algorithem:
+	 * for the algorithm:
 	 * https://fr.wikipedia.org/wiki/Algorithme_de_Dijkstra
 	 * @param src - The source node id. 
-	 * @param dest - The destenation node id.
+	 * @param dest - The destination node id.
 	 * @return The length of the shortest path between src and dest. 
 	 */
 	@Override
 	public double shortestPathDist(int src, int dest)
-	{	
+	{
 		if(src == dest)
 			return 0;
-		
+
 		List<node_data>  notVisited = new LinkedList<node_data>();
 		List<node_data>  visited = new LinkedList<node_data>();
-		
+
 		for (node_data nodes : g.getV())
 		{
 			nodes.setWeight(Double.MAX_VALUE);
 			notVisited.add(nodes);
 		}
 		this.g.getNode(src).setWeight(0);
-		
+
 		node_data currentNode = this.g.getNode(src);
-		
-		while(hasMaxVal(this.g) || !notVisited.isEmpty() || currentNode!=null) 
+
+		while(hasMaxVal(this.g) || !notVisited.isEmpty() || currentNode!=null)
 		{
 			visited.add(currentNode);
 			notVisited.remove(currentNode);
-			
+
 			Collection<edge_data> edgesFromcurrent = g.getE(currentNode.getKey());
-			
-			if(edgesFromcurrent == null) // Testing the case where there are no edges coming out of the current node.  
+
+			if(edgesFromcurrent == null) // Testing the case where there are no edges coming out of the current node.
 			{
 				currentNode = getminNode(notVisited);
 				if(currentNode != null)
 					continue;
 				else
-					break;		
+					break;
 			}
-			
-			for (edge_data edge:edgesFromcurrent) // iterates over and replaces the weight in every one of the nodes.  
+
+			for (edge_data edge:edgesFromcurrent) // iterates over and replaces the weight in every one of the nodes.
 			{
 				double isWeight = edge.getWeight()+currentNode.getWeight();
-				if(isWeight < this.g.getNode(edge.getDest()).getWeight()) 
+				if(isWeight < this.g.getNode(edge.getDest()).getWeight())
 				{
 					this.g.getNode(edge.getDest()).setInfo(Integer.toString(currentNode.getKey()));
 					this.g.getNode(edge.getDest()).setWeight(isWeight);
 				}
 			}
 
-			currentNode = getminNode(notVisited);	
+			currentNode = getminNode(notVisited);
 			if(currentNode == null)
 				break;
-			
+
 		}
-		
+
 		return this.g.getNode(dest).getWeight();
 	}
 	

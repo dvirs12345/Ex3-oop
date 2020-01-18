@@ -14,15 +14,25 @@ import static org.junit.jupiter.api.Assertions.*;
 class MyGameGUITest
 {
     @org.junit.jupiter.api.Test
-    void init() throws JSONException, InterruptedException {
+    void init() throws JSONException, InterruptedException
+    {
         MyGameGUI mgg = new MyGameGUI();
         mgg.init(0);
         TimeUnit.SECONDS.sleep(60);
     }
 
     @org.junit.jupiter.api.Test
-    void initiateGame()
+    void initiateGame() throws JSONException
     {
+        MyGameGUI mgg = new MyGameGUI();
+        mgg.initiateGame(20);
+    }
 
+    @org.junit.jupiter.api.Test
+    void runGui() throws JSONException, InterruptedException
+    {
+        MyGameGUI mgg = new MyGameGUI();
+        mgg.runGui();
+        TimeUnit.SECONDS.sleep(60);
     }
 }

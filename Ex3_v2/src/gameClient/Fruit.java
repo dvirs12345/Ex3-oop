@@ -6,8 +6,8 @@ import utils.Point3D;
 
 public class Fruit
 {
-    public double value;
-    public int type;
+    public double value; // The score given when eaten.
+    public int type; //
     public Point3D pos;
 
     public Fruit() { ; }
