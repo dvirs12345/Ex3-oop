@@ -10,6 +10,8 @@ import oop_dataStructure.oop_edge_data;
 import oop_dataStructure.oop_graph;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import utils.Point3D;
 import utils.StdDraw;
 
 import java.awt.*;
@@ -29,7 +31,7 @@ public class MyGameGUI
     private Fruit[] fruits; // Array of fruits in the scenario.
     private graph gr; // The graph in the scenario.
     private game_service game; // The game object.
-
+    private Robot choose_robot=null;
     /* Constructors */
 
     public MyGameGUI() { ; }
@@ -184,5 +186,69 @@ public class MyGameGUI
     {
         Graph_Gui gg = new Graph_Gui();
         gg.makeScenerioWindow();
+    }
+
+	public void initiateManualGame(int scenario) throws JSONException {
+        /* Handle starting gui */
+        Graph_Gui gg = new Graph_Gui();
+
+        this.init(scenario);
+
+        /* Run the game */
+        this.game.startGame();
+
+        /* Run the robots automatically */
+        while(this.game.isRunning()){
+        	game.move();
+			  gg.repaint();
+            this.robots=gg.drawRobots(this.game.getRobots());
+            this.fruits=gg.drawFruits(this.game.getFruits());
+            StdDraw.show();
+        	if(StdDraw.isKeyPressed(127)&&choose_robot!=null) {
+        		choose_robot=null;
+        	}
+        	
+        	if(StdDraw.isMousePressed()) {
+        		
+        		node_data closest_node =getClosestNode(StdDraw.mouseX(),StdDraw.mouseY());
+        		if(closest_node==null)continue;
+        		if(choose_robot!=null) {
+        			if(gr.getEdge(choose_robot.src, closest_node.getKey())!=null) {
+        				choose_robot.dest=closest_node.getKey();
+        				this.game.chooseNextEdge(choose_robot.id, choose_robot.dest);
+        				choose_robot=null;
+        				
+        			}
+        			continue;
+        		}
+        		
+        		for(Robot r:robots) {
+        			if(closest_node.getLocation().distance2D(r.pos)==0) {
+        				choose_robot=r;
+        				break;
+        			}
+        		}
+        		 
+        	}
+        }
+        
+	}
+		
+
+	node_data getClosestNode(double x, double y) {
+    	int minDistanceToMatch = 5;
+    	node_data closestNode = null;
+    	double closestDistance = Double.POSITIVE_INFINITY;
+    	
+    	Point3D point = new Point3D(x, y, 0);
+    	for(node_data node : gr.getV()) {
+    		double nodeDistance = node.getLocation().distance2D(point);
+    		if((nodeDistance < minDistanceToMatch) &&
+    				(nodeDistance < closestDistance)) {
+    			closestNode = node;
+    			closestDistance = nodeDistance;
+    		}
+    	}
+    	return closestNode;
     }
 }

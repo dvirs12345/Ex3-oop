@@ -13,7 +13,11 @@ public class Robot
     private double speed = 1.0; // Speed
     public Point3D pos; // Position
 
-    public Robot(){ ; }
+    public Robot(){; }
+    public Robot(String robostr) throws JSONException
+    {
+    	this.init(robostr);
+    }
 
     public void init(String robostr) throws JSONException
     {

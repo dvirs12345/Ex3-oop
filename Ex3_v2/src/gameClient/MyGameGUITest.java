@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MyGameGUITest
 {
-    @org.junit.jupiter.api.Test
+//    @org.junit.jupiter.api.Test
     void init() throws JSONException, InterruptedException
     {
         MyGameGUI mgg = new MyGameGUI();
@@ -21,14 +21,20 @@ class MyGameGUITest
         TimeUnit.SECONDS.sleep(60);
     }
 
-    @org.junit.jupiter.api.Test
+//    @org.junit.jupiter.api.Test
     void initiateGame() throws JSONException
     {
         MyGameGUI mgg = new MyGameGUI();
         mgg.initiateGame(20);
     }
+  @org.junit.jupiter.api.Test
+  void initiatManualeGame() throws JSONException
+  {
+      MyGameGUI mgg = new MyGameGUI();
+      mgg.initiateManualGame(20);
+  }
 
-    @org.junit.jupiter.api.Test
+//    @org.junit.jupiter.api.Test
     void runGui() throws JSONException, InterruptedException
     {
         MyGameGUI mgg = new MyGameGUI();

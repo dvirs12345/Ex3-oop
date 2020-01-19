@@ -12,7 +12,11 @@ public class Fruit
 
     public Fruit() { ; }
 
-    public void init(String fruitstr) throws JSONException
+    public Fruit(String f) throws JSONException {
+		this.init(f);
+	}
+
+	public void init(String fruitstr) throws JSONException
     {
         JSONObject line = new JSONObject(fruitstr);
         JSONObject ttt = line.getJSONObject("Fruit");
