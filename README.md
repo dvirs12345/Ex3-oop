@@ -13,4 +13,5 @@ This class contains functions for drawing a graph, robots and fruits.
 It also contains functions for creating gui windows.
 The drawings and gui wiondows are made with StdDraw and Jframe.
 
-
+A picture example of drawing the game:
+![graph1](https://user-images.githubusercontent.com/26343733/72676085-bc2faa80-3a95-11ea-8ce7-d292768a6a17.png)
