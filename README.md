@@ -1,5 +1,5 @@
 In this project we implement a game where robots are placed on one of 23 different graphs and they need to collect as many points as they can by eating the various fruits that are placed on the graph by walking on them.
-You can choose to play the game manually by moving the robots along the graph yourself OR you can sit back and let our algorithem to play the game for you (And then show off that you have collected so many points).  
+You can choose to play the game manually by moving the robots along the graph yourself OR you can sit back and let our algorithem play the game for you (And then show off that you have collected so many points).  
 We tried to make the robots eat ,collectively, as many fruites as possible to maximize the score gotten from eating them.
 
 ***
