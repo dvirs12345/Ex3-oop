@@ -5,4 +5,12 @@ we tried to make the robots eat ,collectively, as many fruites as possible to ma
 
 #MyGameGUI
 
-in this class we implement the basic game functions for the init of the game and running its basics. 
+In this class we implement the basic game functions for the init of the game and running it.
+
+#Graph_Gui
+
+This class contains functions for drawing a graph, robots and fruits.
+It also contains functions for creating gui windows.
+The drawings and gui wiondows are made with StdDraw and Jframe.
+
+
