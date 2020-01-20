@@ -1,27 +1,29 @@
 package gameClient;
 
-import Server.game_service;
-import dataStructure.*;
-import gameClient.Robot;
-import gameClient.Fruit;
 import Server.Game_Server;
+import Server.game_service;
+import dataStructure.DGraph;
+import dataStructure.edge_data;
+import dataStructure.graph;
+import dataStructure.node_data;
 import gui.Graph_Gui;
-import oop_dataStructure.oop_edge_data;
-import oop_dataStructure.oop_graph;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import utils.Point3D;
 import utils.StdDraw;
 
-import java.awt.*;
+import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
+
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
 
 /**
- * @author Dvir Sadon
+ * This class represents the gui part of the game. it also has functions for running the game.
  */
 public class MyGameGUI
 {
@@ -31,7 +33,9 @@ public class MyGameGUI
     private Fruit[] fruits; // Array of fruits in the scenario.
     private graph gr; // The graph in the scenario.
     private game_service game; // The game object.
+    private KML_Logger kmllogger;
     private Robot choose_robot=null;
+
     /* Constructors */
 
     public MyGameGUI() { ; }
@@ -43,15 +47,17 @@ public class MyGameGUI
         this.fruits = fruits;
     }
 
+
     /**
      * Sets up the start of the game.
      * @param scenario - The scenario to init
      * @throws JSONException
      */
-    public void init(int scenario) throws JSONException
+    private void init(int scenario) throws JSONException
     {
         StdDraw.enableDoubleBuffering();
         this.scenario = scenario;
+        this.kmllogger = new KML_Logger(this.scenario);
         Graph_Gui ggui = new Graph_Gui();
 
         this.game = Game_Server.getServer(this.scenario);
@@ -88,12 +94,11 @@ public class MyGameGUI
     }
 
     /**
-     * Runs the automatic game.
+     * Runs the automatic game. also, adds placemarks to the kml file accordingly.
      * @param scenario - The scenario of the game.
      * @throws JSONException
      */
-    public void initiateGame(int scenario) throws JSONException
-    {
+    public void initiateGame(int scenario) throws JSONException, FileNotFoundException {
         /* Handle starting gui */
         Graph_Gui gg = new Graph_Gui();
 
@@ -101,59 +106,67 @@ public class MyGameGUI
 
         /* Run the game */
         this.game.startGame();
-
+        int counter = 0;
         /* Run the robots automatically */
         while(this.game.isRunning())
         {
-            moveRobots(this.game, this.gr);
+            //List<String> log = this.game.move();
+            moveRobots();
             gg.repaint();
-            gg.drawRobots(this.game.getRobots());
-            gg.drawFruits(this.game.getFruits());
+            robots=gg.drawRobots(this.game.getRobots());
+            fruits=gg.drawFruits(this.game.getFruits());
             StdDraw.show();
-
             for (int i = 0; i < this.robots.length; i++)
-                this.game.chooseNextEdge(i, nextNode(this.gr, this.robots[i].src));
+            {
+                if(counter%23 == 0)
+                    this.kmllogger.addPlacemark("robot.png", this.robots[i].pos);
+                this.game.chooseNextEdge(i, nextNode(this.robots[i].src));
+            }
+            for(Fruit f1:this.fruits)
+            {
+                if(f1.type == -1)
+                    this.kmllogger.addPlacemark("banana.png", f1.pos);
+                else
+                    this.kmllogger.addPlacemark("apple.png", f1.pos);
+            }
+            counter++;
         }
+
+        this.kmllogger.endkml();
     }
 
     /**
-     *
-     * @param g -The graph.
      * @param src - The source of the robot.
-     * @return An integer representing the Next node to got to.
+     * @return An integer representing the Next node to go to.
      */
-    private static int nextNode(graph g, int src)
+    private int nextNode(int src)
     {
+
+
         int ans = -1;
-        Collection<edge_data> ee = g.getE(src);
+        Collection<edge_data> ee = this.gr.getE(src);
         Iterator<edge_data> itr = ee.iterator();
         int s = ee.size();
         int r = (int)(Math.random()*s);
         int i=0;
-
-        while(i<r)
-        {
-            itr.next();
-            i++;
-        }
-
+        while(i<r) {itr.next();i++;}
         ans = itr.next().getDest();
         return ans;
     }
 
+
+
     /**
      * Moves the robots on the graph to the dest.
-     * @param game - The game.
-     * @param gg - The graph to move them on.
      */
-    private static void moveRobots(game_service game, graph gg)
+    private void moveRobots()
     {
-        List<String> log = game.move();
+        List<String> log = this.game.move();
         if(log!=null)
         {
-            long t = game.timeToEnd();
+            long t = this.game.timeToEnd();
 
-            for(int i=0;i<log.size();i++)
+            for(int i=0;i < log.size();i++)
             {
                 String robot_json = log.get(i);
                 try
@@ -166,8 +179,11 @@ public class MyGameGUI
 
                     if(dest==-1)
                     {
-                        dest = nextNode(gg, src);
-                        game.chooseNextEdge(rid, dest);
+                        dest = this.nextNode(src);
+                        System.out.println("robot: "+rid+" dest "+dest);
+                        this.game.chooseNextEdge(rid, dest);
+                        this.robots[rid].dest = -1;
+                        this.robots[rid].src = dest;
                         System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
                         System.out.println(ttt);
                     }
@@ -182,13 +198,110 @@ public class MyGameGUI
         return new int[0];
     }
 
-    public void runGui() throws JSONException
+    /**
+     * Runs the entire game.
+     * @throws JSONException
+     * @throws FileNotFoundException 
+     */
+    public void runGui() throws JSONException, FileNotFoundException
     {
-        Graph_Gui gg = new Graph_Gui();
-        gg.makeScenerioWindow();
+
+    	Integer[] scenarios= new Integer[24];
+    	for(int i=0;i<24;i++) {
+    		scenarios[i]=i;
+    	}
+
+    	JOptionPane pane= new JOptionPane("Choose senario",JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                scenarios,
+                scenarios[0]);
+    	JDialog dialog= pane.createDialog(null);
+    	dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+    	dialog.setVisible(true);
+    	int scn=(int)pane.getValue();
+    	
+
+    	dialog.dispose();
+
+    	System.out.println(scn);
+    	String[] options= {"Auto","Manual"};
+    	
+    	pane= new JOptionPane(
+    		    "How to run?",
+    		   
+    		    JOptionPane.PLAIN_MESSAGE,
+    		    JOptionPane.YES_NO_OPTION,
+    		    null,     //do not use a custom Icon
+    		    options,  //the titles of buttons
+    		    options[0]);
+    	dialog=pane.createDialog(null);
+    	dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+    	dialog.setVisible(true);
+    	boolean manual=("Manual".equals(pane.getValue()));
+	
+//    	System.out.println(manual);
+    	if(manual)initiateManualGame(scn);
+    	else{initiateGame(scn);}
+    	int score=calcScore();
+    	
+
+    	
+    	pane= new JOptionPane(
+    		    "Your score is: "+score,
+    		    JOptionPane.INFORMATION_MESSAGE);
+    	
+    	dialog=pane.createDialog(null);
+//    	dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+    	dialog.setVisible(true);
+    	System.exit(0);
+//    	boolean manual=("Manual".equals(pane.getValue()));
+    	
+//    	
+    	
+    	
+    }
+    private int calcScore() throws JSONException {
+		int score=0;
+    	for(String robot:game.getRobots()) {
+    		System.out.println(robot);
+			score+=new JSONObject(robot).getJSONObject("Robot").getInt("value");
+		}
+    	return score;
+	}
+
+	node_data getClosestNode(double x, double y) {
+
+        int minDistanceToMatch = 5;
+
+        node_data closestNode = null;
+
+        double closestDistance = Double.POSITIVE_INFINITY;
+
+        Point3D point = new Point3D(x, y, 0);
+
+        for(node_data node : gr.getV()) {
+
+                double nodeDistance = node.getLocation().distance2D(point);
+
+                if((nodeDistance < minDistanceToMatch) &&
+
+                                (nodeDistance < closestDistance)) {
+
+                        closestNode = node;
+
+                        closestDistance = nodeDistance;
+
+                }
+
+        }
+
+        return closestNode;
+
     }
 
-	public void initiateManualGame(int scenario) throws JSONException {
+  
+    public void initiateManualGame(int scenario) throws JSONException {
         /* Handle starting gui */
         Graph_Gui gg = new Graph_Gui();
 
@@ -233,22 +346,4 @@ public class MyGameGUI
         }
         
 	}
-		
-
-	node_data getClosestNode(double x, double y) {
-    	int minDistanceToMatch = 5;
-    	node_data closestNode = null;
-    	double closestDistance = Double.POSITIVE_INFINITY;
-    	
-    	Point3D point = new Point3D(x, y, 0);
-    	for(node_data node : gr.getV()) {
-    		double nodeDistance = node.getLocation().distance2D(point);
-    		if((nodeDistance < minDistanceToMatch) &&
-    				(nodeDistance < closestDistance)) {
-    			closestNode = node;
-    			closestDistance = nodeDistance;
-    		}
-    	}
-    	return closestNode;
-    }
 }
