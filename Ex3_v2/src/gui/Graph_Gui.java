@@ -14,6 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
@@ -111,7 +112,10 @@ public class Graph_Gui
 	{
 		String filename = "robot1.gif";
 		for (Robot rob : robots)
+		{
 			StdDraw.picture(rob.pos.x(),rob.pos.y(), filename);
+		}
+
 	}
 
 	/**
@@ -127,13 +131,13 @@ public class Graph_Gui
 
 		JPanel headingPanel = new JPanel();
 
-		JPanel panel = new JPanel();
-//		GridBagConstraints constr = new GridBagConstraints();
-//		constr.insets = new Insets(5, 5, 5, 5);
-//		constr.anchor = GridBagConstraints.WEST;
+		JPanel panel = new JPanel(new GridBagLayout());
+		GridBagConstraints constr = new GridBagConstraints();
+		constr.insets = new Insets(5, 5, 5, 5);
+		constr.anchor = GridBagConstraints.WEST;
 
-//		constr.gridx=0;
-//		constr.gridy=0;
+		constr.gridx=0;
+		constr.gridy=0;
 
 		// Declare the required Labels
 		JLabel userNameLabel = new JLabel("Enter scenario number (0-23) :");
@@ -141,15 +145,15 @@ public class Graph_Gui
 		// Declare Text fields
 		JTextField userNameTxt = new JTextField(20);
 
-		panel.add(userNameLabel);
-//		constr.gridx=1;
-		panel.add(userNameTxt);
-//		constr.gridx=0; constr.gridy = 1;
+		panel.add(userNameLabel, constr);
+		constr.gridx=1;
+		panel.add(userNameTxt, constr);
+		constr.gridx=0; constr.gridy = 1;
 
-//		constr.gridwidth = 2;
-//		constr.anchor = GridBagConstraints.CENTER;
+		constr.gridwidth = 2;
+		constr.anchor = GridBagConstraints.CENTER;
 
-		JButton button = new JButton("Automatic Game");
+		JButton button = new JButton("Enter");
 		// add a listener to button
 		button.addActionListener(new ActionListener()
 		{
@@ -159,39 +163,19 @@ public class Graph_Gui
 				try
 				{
 					int scenario = Integer.parseInt(userNameTxt.getText());
-//					frame.setVisible(false);
+					frame.setVisible(false);
 					mgg.initiateGame(scenario);
 				}
-				catch (JSONException ex)
+				catch (JSONException | FileNotFoundException ex)
 				{
 					ex.printStackTrace();
 				}
 			}
 		});
-		JButton button2 = new JButton("Manual Game");
-		// add a listener to button
-		button2.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				MyGameGUI mgg = new MyGameGUI();
-				try
-				{
-					int scenario = Integer.parseInt(userNameTxt.getText());
-					frame.setVisible(false);
-					System.out.println(scenario);
-					mgg.initiateManualGame(scenario);
-				}
-				catch (JSONException ex)
-				{
-					ex.printStackTrace();
-				}
-			}
-		});
+
 		// Add label and button to panel
-		panel.add(button);
-		
-		panel.add(button2);
+		panel.add(button, constr);
+
 		mainPanel.add(headingPanel);
 		mainPanel.add(panel);
 

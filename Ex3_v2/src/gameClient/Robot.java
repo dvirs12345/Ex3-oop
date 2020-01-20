@@ -4,6 +4,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import utils.Point3D;
 
+/**
+ * This class represents a Robot.
+ * it has an id, value, src, dest, pos (point3D), speed.
+ */
 public class Robot
 {
     public int id; // id
@@ -13,12 +17,13 @@ public class Robot
     private double speed = 1.0; // Speed
     public Point3D pos; // Position
 
-    public Robot(){; }
-    public Robot(String robostr) throws JSONException
-    {
-    	this.init(robostr);
-    }
+    public Robot(){ ; }
 
+    /**
+     * This is an init function for a Robot. it gets a string representing a Robot and updates the attributes accordingly
+     * @param robostr - A string representing a robot.
+     * @throws JSONException
+     */
     public void init(String robostr) throws JSONException
     {
         JSONObject line = new JSONObject(robostr);

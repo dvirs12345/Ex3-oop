@@ -739,7 +739,13 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		    {
 		    	Graph_Gui.display_TSP();
 		    }
-		});		
+		});
+
+		JMenu scenario = new JMenu("Scenario");
+		menuBar.add(algo);
+		JMenuItem start = new JMenuItem(" Start ");
+		algo.add(algo1);
+
 		JMenuItem menuItem1 = new JMenuItem(" Save...   ");
 		menuItem1.addActionListener(std);
 		menuItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
