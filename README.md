@@ -22,6 +22,7 @@ With this class we create a kml file that you can then, open in google earth to 
 The robot movements and fruit eating. In google earth you can simulate a run just like the one in your game. 
 
 A picture exaple of kml file shown in google earth:
+![kml run](https://user-images.githubusercontent.com/26343733/72751922-8ab7fb80-3bc9-11ea-8e6c-ce41cbb78b42.png)
 
 
 A picture example of drawing the game:
