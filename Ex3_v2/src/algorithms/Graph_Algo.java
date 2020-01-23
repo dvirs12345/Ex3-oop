@@ -1,359 +1,536 @@
 package algorithms;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
 import java.util.Stack;
 
-import dataStructure.*;
+import dataStructure.DGraph;
 
+import dataStructure.edge_data;
+import dataStructure.graph;
+
+import dataStructure.node_data;
+
+import utils.Point3D;
 /**
- * This class represents the set of graph-theory algorithms.
- * @author Dvir Sadon and Tehila Bakshiel.
+ * This empty class represents the set of graph-theory algorithms
+ * which should be implemented as part of Ex2 - Do edit this class.
+ * @author 
+ *
  */
-public class Graph_Algo implements graph_algorithms, Serializable
-{
-	private static final long serialVersionUID = 1L;
+public class Graph_Algo implements graph_algorithms{
+
+	graph g;
 	
-	public graph g = null; // The graph the algorithms are used on.
-	
-	public Graph_Algo() { ; }
-	
+	public Graph_Algo(graph g) {
+		this.g=g;
+	}
+	public Graph_Algo() {
+		this.g=new DGraph();
+	}
 	@Override
-	public void init(graph g)
-	{
-		this.g = g;
+	public void init(graph g) {
+		this.g=g;
+		
+	}
+	@Override
+	public void init(String file_name) {
+		
+		try {
+			FileInputStream fi = new FileInputStream(new File(file_name));
+			ObjectInputStream oi = new ObjectInputStream(fi);
+
+			// Read objects
+			graph dGraph = (DGraph) oi.readObject();
+			init(dGraph);
+			oi.close();
+			fi.close();
+
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+		} catch (IOException e) {
+			System.out.println("Error initializing stream");
+		} catch (ClassNotFoundException e) {
+			System.out.println("Class not found");
+			e.printStackTrace();
+		}
 	}
 
 	@Override
-	public void init(String file_name)
-	{
-		try 
-		{
-			ObjectInputStream in=new ObjectInputStream(new FileInputStream(file_name));
-			graph ng = (graph) in.readObject(); 
-			init(ng);
-			in.close();
+	public void save(String file_name) {
+		try {
+			FileOutputStream f = new FileOutputStream(new File(file_name));
+			ObjectOutputStream o = new ObjectOutputStream(f);	
+
+			// Write objects to file
+			o.writeObject(g);
+
+			o.close();
+			f.close();
 		}
-		
-		catch(FileNotFoundException e) 
-		{
-			e.printStackTrace();
+		catch (FileNotFoundException e) {
+			System.out.println("File not found: " + file_name);
+		}
+		catch (IOException e) {
+			System.out.println("Error initializing stream");
 		} 
-		catch (ClassNotFoundException e)
-		{
-			e.printStackTrace();
-		} 
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		
 	}
 
 	@Override
-	public void save(String file_name)
-	{
-		try
-		{
-			OutputStream outStream = new FileOutputStream(file_name);
-			ObjectOutputStream fileObjectOut = new ObjectOutputStream(outStream);
-			fileObjectOut.writeObject(this.g);
-			fileObjectOut.close();
-			outStream.close();
-		}
-		
-		catch (FileNotFoundException e)
-		{
-			System.out.println("");
-		}
-		catch (IOException e) 
-		{
-			e.printStackTrace();
-		}
-		catch (Exception e) 
-		{
-			throw new RuntimeException("Error saving to file");
-		}
-	}
-
-	@Override
-	public boolean isConnected() 
-	{
-		if(g.nodeSize() < 2)
-			return true;
-
-		boolean flag = false;
-		Iterator<node_data> NODE_Iterator = ((graph) g).getV().iterator();
-		Stack<node_data> s1 = new Stack<node_data>();
-
-		while(NODE_Iterator.hasNext())  
-		{
-			for (node_data nodes : ((graph) g).getV()) // Set all node tags to 0
-				nodes.setTag(0);
-
-			node_data currentNode = NODE_Iterator.next();
-			s1.add(currentNode);
-			currentNode.setTag(1);
-
-			if(!Neighbors(currentNode,s1).isEmpty())
-				flag = false;
-			else
-				flag = true;
-		}
-		
+	public boolean isConnected() {
+//		Collection<node_data> v=g.getV();
+//		if(v.isEmpty())return true;//connected in the empty sense
+//		
+//		if(g.edgeSize()<v.size())return false;
+//	
+//		node_data v1=v.iterator().next();//get starting v
+//		tag(g,v1,1);
+//		
+		boolean flag=true;
+//		//check if all vertices are tagged
+//		for(node_data v2: v) {
+//			if(v2.getTag()==1)continue;
+//			flag=false;
+//			break;
+//		}
+//		if(!flag) {
+//			v.forEach(m->{m.setTag(0);});//remove tags
+//			return false;
+//		}
+//		DGraph g1=new DGraph();
+//		
+//		g1.reverseDGraph(g);
+//		tag(g1,v1,0);
+//		
+//		for(node_data v2: v) {
+//			if(v2.getTag()==0)continue;
+//			flag=false;
+//			v2.setTag(0);//remove tag
+//			
+//		}
 		return flag;
 	}
-	
-	/**
-	 * @param currentNode - The node to make the stack with. 
-	 * @param s - The stack to update.
-	 * @return A new Stack containing the needed information.
-	 */
-	private Stack<node_data> Neighbors(node_data currentNode, Stack<node_data> s)
-	{
-		Iterator<edge_data> EDGE_iterator = ((DGraph) g).getE(currentNode.getKey()).iterator();
-		if(s.isEmpty()) 
-			return s;
-		
-		while(EDGE_iterator.hasNext()) 
-		{
-			edge_data e = EDGE_iterator.next();
-			if(((DGraph) g).getNode(e.getDest()).getTag() == 0) 
-			{
-				s.push(((DGraph) g).getNode(e.getDest()));
-				((DGraph) g).getNode(e.getDest()).setTag(1);
-				Neighbors(((DGraph) g).getNode(e.getDest()), s);
+
+	private void tag(graph graph,node_data v,int tag) {
+		//tags all vertexes in graph that are reachable from v 
+		Stack<Iterator<edge_data>> stack=new Stack<Iterator<edge_data>>(); 
+		node_data v1;
+		Iterator<edge_data> itr;
+		stack.push(graph.getE(v.getKey()).iterator());
+		edge_data e;
+		do{
+			itr=stack.pop();
+			while(itr.hasNext()) {
+				e=itr.next();
+				v1=graph.getNode(e.getDest());
+				if(v1.getTag()==tag)continue;
+				v1.setTag(tag);
+				stack.push(itr);
+				itr=graph.getE(v1.getKey()).iterator();
 			}
-		}
-		
-		s.pop();
-		return s;
+		}while(!stack.isEmpty()); 
 	}
 	
-	/**
-	 * This function updates the weights of the nodes using the dijkstra's algorithm
-	 * and then returns the length of the shortest path from src node to dest node.
-	 * for the algorithm:
-	 * https://fr.wikipedia.org/wiki/Algorithme_de_Dijkstra
-	 * @param src - The source node id. 
-	 * @param dest - The destination node id.
-	 * @return The length of the shortest path between src and dest. 
-	 */
+	
+
+
 	@Override
-	public double shortestPathDist(int src, int dest)
-	{
-		if(src == dest)
-			return 0;
+	public double shortestPathDist(int src, int dest) {
+		g.getV().forEach(v->{v.setWeight(Double.POSITIVE_INFINITY);
+		});
+		tagWeight(src,dest);
+		g.getNode(dest).setTag(0);
+		return g.getNode(dest).getWeight();
+	}	
 
-		List<node_data>  notVisited = new LinkedList<node_data>();
-		List<node_data>  visited = new LinkedList<node_data>();
 
-		for (node_data nodes : g.getV())
-		{
-			nodes.setWeight(Double.MAX_VALUE);
-			notVisited.add(nodes);
+	class path implements Comparator<path>{
+		
+		node_data node;
+		path next;
+		double dist;
+		
+		public path(double d,node_data node) {
+			node.setWeight(d);
+			this.node=node;
+			dist=d;
+			
 		}
-		this.g.getNode(src).setWeight(0);
+		
+		public path addDist(node_data node,double d) {
+			path p = new path(node,d);
+			p.next=this;
+			return p;
+		}
+		public path(node_data node,double d) {
+			node.setWeight(d);
+			this.node=node;
+			dist=d;
+			
+		}
+		
+		public path add(node_data node,double d) {
+			path p = new path(node,d);
+			p.next=this;
 
-		node_data currentNode = this.g.getNode(src);
+			return p;
+		}
 
-		while(hasMaxVal(this.g) || !notVisited.isEmpty() || currentNode!=null)
-		{
-			visited.add(currentNode);
-			notVisited.remove(currentNode);
 
-			Collection<edge_data> edgesFromcurrent = g.getE(currentNode.getKey());
+		public path() {
+			// TODO Auto-generated constructor stub
+		}
+		@Override
+		public int compare(path p1, path p2) {
+			if(p1.node.getWeight()>p2.node.getWeight())return 1;
+			if(p1.node.getWeight()<p2.node.getWeight())return -1;
+			if(p1.node.getTag()==2)return -1;
 
-			if(edgesFromcurrent == null) // Testing the case where there are no edges coming out of the current node.
-			{
-				currentNode = getminNode(notVisited);
-				if(currentNode != null)
-					continue;
-				else
-					break;
+			return 1;
+		}
+
+		/**
+		 * @param size
+		 * return the shortest path containing #size-1 nodes with tag 2 not including the first node 
+		 */
+		public void trim(int size) {
+			HashMap<Integer, node_data> treil=new HashMap<Integer, node_data>(size);
+			path tail=this;
+			treil.put(tail.node.getKey(),tail.node);
+			double dist=0;
+			while(treil.size()<size) {
+
+				dist+=g.getEdge( tail.next.node.getKey(),tail.node.getKey()).getWeight();
+				tail=tail.next;
+				if(tail.node.getTag()==2)treil.put(tail.node.getKey(),tail.node);
+
 			}
 
-			for (edge_data edge:edgesFromcurrent) // iterates over and replaces the weight in every one of the nodes.
-			{
-				double isWeight = edge.getWeight()+currentNode.getWeight();
-				if(isWeight < this.g.getNode(edge.getDest()).getWeight())
-				{
-					this.g.getNode(edge.getDest()).setInfo(Integer.toString(currentNode.getKey()));
-					this.g.getNode(edge.getDest()).setWeight(isWeight);
+			this.dist=dist;
+			if(tail.next==null)return;
+
+			tail.next=null;
+		}
+
+		
+	}
+	
+	private path tagWeight(int src, int dest) {
+// tag distance and finds shortest path 
+//		System.out.println(g.nodeSize());
+		PriorityQueue<path> h= new PriorityQueue<path>(g.nodeSize(), new path());
+
+	
+		node_data vSrc = g.getNode(src);
+		path pSrc = new path(vSrc,0);
+		node_data v = g.getNode(dest);
+		v.setTag(2);
+
+		double d,ans=v.getWeight();
+
+
+		h.add(pSrc);
+		
+		while(!h.isEmpty()&&h.peek().node.getTag()!=2){
+			
+			pSrc=h.remove();
+
+
+			for(edge_data e: g.getE(pSrc.node.getKey())) {
+
+				d=e.getWeight()+pSrc.node.getWeight();
+				v=g.getNode(e.getDest());
+				if(v.getWeight()<=d||ans<=d)continue;
+				
+				
+				path p=pSrc.add(v,d);
+				h.removeIf(m->(m.node==p.node));
+
+				h.add(p);
+				if(v.getKey()==dest)ans=d;
+				
+			
+			}
+		}
+
+		return h.peek();//shortest path 
+	}
+
+
+	@Override
+	public List<node_data> shortestPath(int src, int dest) {
+		g.getV().forEach(v->{v.setWeight(Double.POSITIVE_INFINITY);});
+		
+		
+		path p=tagWeight(src, dest);
+		g.getNode(dest).setTag(0);
+
+		
+		if(p==null)return null;
+		List<node_data> trace= treil(p);
+
+		Collections.reverse(trace);
+
+		return trace;
+	}	
+		
+	private List<node_data> treil(path p) {
+		//convert path to List
+		ArrayList<node_data> trace= new ArrayList<node_data>();
+		while(p!=null) {
+			trace.add(p.node);
+			p=p.next;
+		}
+		return trace;
+	}
+		
+		
+		
+		
+		
+	@Override
+	public List<node_data> TSP(List<Integer> targets) {
+		if(targets==null||targets.size()<2)return null;
+		g.getV().forEach(v->{v.setTag(0);});
+		Iterator<Integer> itr=targets.iterator();
+
+		node_data vSrc=g.getNode(itr.next());
+		int tag=4;
+		int count=tag(vSrc,targets,tag);
+		HashMap<Integer, ArrayList<node_data>> connected=new HashMap<Integer, ArrayList<node_data>>();
+
+		if(vSrc.getTag()!=tag) {count++;}
+		connected.put(count, new ArrayList<node_data>());
+		connected.get(count).add(vSrc);
+		
+		while(itr.hasNext()){//sort by connectivity
+			tag++;
+			vSrc=g.getNode(itr.next());
+			count=tag(vSrc,targets,tag);
+			if(vSrc.getTag()!=tag)count++;
+			vSrc.setWeight(count);
+			connected.putIfAbsent(count, new ArrayList<node_data>());
+			connected.get(count).add(vSrc);
+		}
+		g.getV().forEach(v->{v.setTag(0);v.setWeight(Double.POSITIVE_INFINITY);});
+		
+		if(connected.size()==1&&connected.keySet().contains(targets.size())) {
+//			System.out.println("Strongly connected");
+		List<node_data> trg=connected.get(targets.size());
+
+		path p = null,ans=null;
+		double dist=Double.POSITIVE_INFINITY;
+	
+		trg.forEach(v->{v.setTag(2);});
+		
+		for(node_data start: trg) {
+
+			p=new path(0,start);
+			
+			p=tspConnected(p,count-1);
+
+			trg.forEach(v->{v.setTag(2);});
+
+			p.trim(targets.size());
+
+			if(dist<p.dist) {continue;}
+			dist=p.dist; 
+			ans=p;	
+//			System.out.println(ans.dist+" dist");
+		}
+		trg=treil(ans);
+
+		Collections.reverse(trg);
+
+		return trg;
+	}
+		ArrayList<ArrayList<node_data>> deg_order=new ArrayList<ArrayList<node_data>>(connected.size());
+		int i=targets.size();
+		while(i>0) {//Verifying connectivity
+			if(!connected.containsKey(i))return null;
+			deg_order.add(connected.get(i));
+			i-=connected.get(i).size();
+		}
+		
+
+		path p = null;
+		List<node_data> deg=deg_order.get(0);
+		HashMap<Integer, path> paths=new HashMap<Integer,path>(); 
+		deg.forEach(v->{v.setTag(2);});
+
+		for(node_data start: deg) {
+			
+			p=new path(0,start);
+			if(deg.size()==1) {paths.put(p.node.getKey(), p);continue;}
+			p=tspConnected(p,deg.size()-1);
+			deg.forEach(v->{v.setTag(2);});
+
+			if(p==null)continue;
+			p.trim(deg.size());
+
+			if(paths.containsKey(p.node.getKey())&&paths.get(p.node.getKey()).dist<=p.dist)continue;
+
+			paths.put(p.node.getKey(), p);
+		}
+
+		HashMap<Integer, path> paths2;
+		for(i=1;i<deg_order.size();i++) {
+			deg.forEach(v->{v.setTag(0);});
+			paths2=new HashMap<Integer,path>(paths.size());
+			deg=deg_order.get(i);
+
+			for(path path: paths.values()){
+
+				deg.forEach(v->{v.setTag(2);});
+				p=tspConnected(path,deg.size());
+				if(p==null||(paths2.containsKey(p.node.getKey())&&paths2.get(p.node.getKey()).dist<=p.dist))continue;
+				paths2.put(p.node.getKey(), p);
+			}
+			paths=paths2;
+
+		}
+		double dist =Double.POSITIVE_INFINITY;
+		for(path path: paths.values()) {
+			if(dist>path.dist) {dist=path.dist; p=path;}
+		}
+	
+		deg= treil(p);
+		Collections.reverse(deg);
+		return deg;
+	
+		
+		
+	}
+	
+	private path tspConnected(path pSrc, int size) {
+
+		PriorityQueue<path> h= new PriorityQueue<path>(g.nodeSize(), new path());
+		
+		HashMap<Integer, node_data>taged= new HashMap<Integer, node_data>();
+		
+		node_data v;
+		double d,ans;
+	
+		while(size>0){
+			
+			pSrc.node.setTag(0);
+			
+			pSrc.node.setWeight(0);
+			h.add(pSrc);
+			
+			taged.put(pSrc.node.getKey(),pSrc.node);
+			ans=Double.POSITIVE_INFINITY;
+			
+			while(!h.isEmpty()&&h.peek().node.getTag()!=2){
+				pSrc=h.remove();
+
+				
+				for(edge_data e : g.getE(pSrc.node.getKey())) {
+			
+					d=e.getWeight()+pSrc.node.getWeight();
+					v=g.getNode(e.getDest());
+
+					if(v.getWeight()<=d||ans<=d)continue;
+					taged.put(v.getKey(), v);
+					
+					path p1=pSrc.addDist(v,d);
+//					h.removeIf(m->(m.node==p1.node));
+					if(v.getTag()==2) {
+						h.removeIf(m->(m.node.getTag()==2));
+
+						}
+					h.add(p1);
+					
 				}
 			}
 
-			currentNode = getminNode(notVisited);
-			if(currentNode == null)
-				break;
+			taged.values().forEach(t->{t.setWeight(Double.POSITIVE_INFINITY);});
 
+			size--;
+			if(h.isEmpty()||size==0)break;
+			taged.clear();
+			pSrc=h.peek();
+
+			h.clear();
 		}
 
-		return this.g.getNode(dest).getWeight();
-	}
-	
-	/**
-	 * 
-	 * @param g1 - the graph.
-	 * @return true if the graph has a MAX_VALUE node, false otherwise.
-	 */
-	private boolean hasMaxVal(graph g1) 
-	{
-		for (node_data nodes : g.getV())
-			if(Double.MAX_VALUE == nodes.getWeight())
-				return true;
-		return false;
-	}
-	
-	/**
-	 * 
-	 * @param arr - The array to search
-	 * @return The minimum node from the List
-	 */
-	private node_data getminNode(List<node_data> arr) 
-	{
-		if(arr.isEmpty()) 
-			return null;
-		
-		double min = Double.MAX_VALUE;
-		node_data minNode=null;
-		
-		for(int i = 0; i < arr.size();i++)
-		{
-			if(arr.get(i).getWeight()<min)
-			{
-				min=arr.get(i).getWeight();
-				minNode=arr.get(i);
-			}
-		}
-		return minNode;
-	} 
-	
-	/**
-	 * @param src - The source node id.
-	 * @param dest - The destination node id.
-	 * @return List of the shortest path from the src node to dest node.
-	 */
-	@Override
-	public List<node_data> shortestPath(int src, int dest)
-	{
-		shortestPathDist(src, dest);
-		node_data currentNode = g.getNode(dest);
-		List<node_data> result = new LinkedList<node_data>();
-		
-		while(!currentNode.getInfo().isEmpty() || currentNode.getKey() == g.getNode(src).getKey()) 
-		{
-			result.add(currentNode);
-			currentNode = g.getNode(Integer.parseInt(currentNode.getInfo()));
-			if(currentNode.getKey()==g.getNode(src).getKey())
-				break;
-		}
-		
-		result.add(currentNode);
-		
-		List<node_data> result2 = new LinkedList<node_data>();
-		
-		for (int i = result.size(); i > 0 ; i--)
-			result2.add(result.get(i-1));
-		
-		result = result2;
-		return result;
-	}
-	
-
-	@Override
-	public List<node_data> TSP(List<Integer> targets)
-	{
-		if(targets.size() == 0)
-			return null;
-		else
-			if(targets.size() == 1)
-				return shortestPath(targets.get(0), targets.get(0));
-		
-		Collection<node_data> nodes = g.getV();
-		List<node_data> targetsN = new LinkedList<node_data>();
-		
-		for (node_data node:nodes) 
-			if(targets.contains(node.getKey()))
-				targetsN.add(node);
-		
-		List<node_data> result = new LinkedList<node_data>();
-		List<node_data> temp = new LinkedList<node_data>();
-		
-		for (node_data node:nodes) 
-			node.setTag(1);
-		
-		boolean flag = false;
-		for(int i = 1;i < this.g.nodeSize();i++) 
-		{
-			flag = false;
-			for (int j = 0; j < targetsN.size()-1; j++)
-			{
-				result.addAll(doesAPath(targetsN.get(j), targetsN.get(j+1)));
-				targetsN.get(j+1).setTag(0);
-				targetsN.get(j).setTag(0);
-			}
-			
-			for (int j = 0; j < targetsN.size(); j++)
-				if(targetsN.get(j).getTag() != 0)
-					flag = true;
-			
-			if(!flag)
-				break;
-			Collections.shuffle(targetsN);
-		}
-		
-		for (int i = 0; i < result.size()-1; i++) // Remove excess nodes from the path.
-			if(result.get(i) == result.get(i+1))
-				result.remove(i);
-		
-		return result;
-	}
-	
-	/**
-	 * Checks if a path from node1 to node2 exists, if so, return it. else, returns null.
-	 * @param node_data - The source. 
-	 * @param node_data2 - The destination.
-	 * @return The shortest from node1 to node2. If its null, the null. 
-	 */
-	private List<node_data> doesAPath(node_data node1, node_data node2) 
-	{
-		List<node_data> result = shortestPath(node1.getKey(), node2.getKey());
-		if(result==null) 
-			return null;
-		return result;
+		return h.peek();
 	}
 
-	/**
-	 * Adds the first list to the second one.
-	 * @param l1 - The First List
-	 * @param l2 - The Second List
-	 * @return
-	 */
-	private List<node_data> mergelists(List<node_data> l1, List<node_data> l2) 
-	{
-		for (int i = 0; i < l2.size(); i++) 
-			l1.add(l2.get(i));
-		return l1;
+		
+		
+		
+		
+
+	private int tag(node_data vSrc, List<Integer> targets, int tag) {
+		tag(g, vSrc,tag);
+		int count=0;
+		for(int i:targets) {
+			if(g.getNode(i).getTag()==tag)count++;
+		}
+		return count;
 	}
+
+	
+	/**
+	 * @param src
+	 * @param e
+	 * @param distp 
+	 * @return object{(double) distance, (int) src, (edge_data) e, (int) next key in path }
+	 */
+	public ArrayList<Object> shortestPathDir(int src,edge_data e, double distp) {
+
+		ArrayList<Object> toEdge= new ArrayList<Object>();
+//		System.out.println(e);
+
+		if(src==e.getSrc()) {
+			toEdge.add(e.getWeight()-distp);
+			toEdge.add(src);
+			toEdge.add(e);
+			toEdge.add(e.getDest());
+			return toEdge;
+		}
+		g.getV().forEach(v->{v.setWeight(Double.POSITIVE_INFINITY);});
+		path p=tagWeight(src,e.getSrc());
+		g.getNode(e.getSrc()).setTag(0);
+		
+		toEdge.add(g.getNode(e.getSrc()).getWeight()+e.getWeight()-distp);
+		toEdge.add(src);
+		toEdge.add(e);
+		List<node_data> trace= treil(p);
+		toEdge.add(trace.get(trace.size()-2).getKey());
+		return toEdge;
+	
+	}	
+
+	
+		
+		
+		
 	
 	@Override
-	public graph copy()
-	{
-		Graph_Algo ga = new Graph_Algo();
-		this.save("temp.txt");
-		ga.init("temp.txt");
-		return (graph) ga.g;
+	public graph copy() {
+		DGraph graph= new DGraph();
+//		graph.copy(this.g);
+		
+		return graph;
 	}
 
 }

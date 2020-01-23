@@ -2,7 +2,9 @@ package gameClient;
 
 import Server.Game_Server;
 import Server.game_service;
+import algorithms.Graph_Algo;
 import dataStructure.DGraph;
+
 import dataStructure.edge_data;
 import dataStructure.graph;
 import dataStructure.node_data;
@@ -10,12 +12,16 @@ import gui.Graph_Gui;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import utils.Point3D;
 import utils.StdDraw;
 
 import java.io.FileNotFoundException;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.ArrayList;
+
+import java.util.Collections;
+import java.util.Comparator;
+
 import java.util.List;
 
 import javax.swing.JDialog;
@@ -73,9 +79,10 @@ public class MyGameGUI
         JSONObject ttt = line.getJSONObject("GameServer");
         int rs = ttt.getInt("robots");
 
-        int src_node = 0;
-        for(int a = 0;a<rs;a++)
-            this.game.addRobot(src_node+a);
+   
+        placeRobots(ggui,rs);
+//        for(int a = 0;a<rs;a++)
+//            this.game.addRobot(src_node+a);
 
         /* Draw starting robots */
         List<String> robots = this.game.getRobots();
@@ -84,7 +91,7 @@ public class MyGameGUI
 
         /* Draw starting fruits */
         List<String> fruits = this.game.getFruits();
-        System.out.println(fruits.get(0));
+//        System.out.println(fruits.get(0));
         this.fruits = ggui.drawFruits(fruits);
 
         /* Draw the timer */
@@ -108,10 +115,12 @@ public class MyGameGUI
         this.game.startGame();
         int counter = 0;
         /* Run the robots automatically */
+        
         while(this.game.isRunning())
         {
             //List<String> log = this.game.move();
-            moveRobots();
+            nextMoves(gg);
+            game.move();
             gg.repaint();
             robots=gg.drawRobots(this.game.getRobots());
             fruits=gg.drawFruits(this.game.getFruits());
@@ -120,7 +129,7 @@ public class MyGameGUI
             {
                 if(counter%23 == 0)
                     this.kmllogger.addPlacemark("robot.png", this.robots[i].pos);
-                this.game.chooseNextEdge(i, nextNode(this.robots[i].src));
+
             }
             for(Fruit f1:this.fruits)
             {
@@ -135,68 +144,175 @@ public class MyGameGUI
         this.kmllogger.endkml();
     }
 
+    private void placeRobots(Graph_Gui gg, int rs) throws JSONException {
+    	List<edge_data> dests=findFruits(gg);
+
+
+		for(int i=0; rs>i; i++) {
+
+    		if(dests.size()!=0) {
+    			this.game.addRobot(dests.get(dests.size()-1).getSrc());
+    			dests.remove(dests.size()-1);
+    		}
+    		
+		}
+
+    	return;	
+	
+		
+	}
+    
     /**
-     * @param src - The source of the robot.
-     * @return An integer representing the Next node to go to.
+     * @param gg
+     * @return list of edges matching the fruits in game
+     * @throws JSONException
      */
-    private int nextNode(int src)
-    {
+    private List<edge_data> findFruits(Graph_Gui gg) throws JSONException {
+    	ArrayList<edge_data> dests= new ArrayList<edge_data>();
+    	double x0,y0,y1,x1;
+    	gg.f_E=new ArrayList<ArrayList<Double>>();
+
+    	JSONObject line;
+    	for(node_data v: gr.getV()) {
+    		for(edge_data e: gr.getE(v.getKey())) {
+    			e.setTag(0);
+    		}
+    	}
+    	Point3D pos;
+    	edge_data e;
+    	for(String fr: game.getFruits()) {
+    	
+    		line= new JSONObject(fr).getJSONObject("Fruit");
+    		pos=new Point3D(line.getString("pos"));
+    		e=getEdge(pos,line.getInt("type"));
 
 
-        int ans = -1;
-        Collection<edge_data> ee = this.gr.getE(src);
-        Iterator<edge_data> itr = ee.iterator();
-        int s = ee.size();
-        int r = (int)(Math.random()*s);
-        int i=0;
-        while(i<r) {itr.next();i++;}
-        ans = itr.next().getDest();
-        return ans;
-    }
+    		x0= this.gr.getNode(e.getSrc()).getLocation().x();
+    		x1= this.gr.getNode(e.getDest()).getLocation().x();
+    		y0= this.gr.getNode(e.getSrc()).getLocation().y();
+    		y1= this.gr.getNode(e.getDest()).getLocation().y();
+    		gg.drowE(x0,y0,x1,y1,(double) line.getInt("type"));
 
+    		e.setTag(e.getTag()+line.getInt("value"));
+    		dests.add(e);
+    	}
+    	Collections.sort(dests, new Comparator<edge_data>() {
+
+			@Override
+			public int compare(edge_data o1, edge_data o2) {
+				return -Double.compare(o1.getWeight()/o1.getTag(),o2.getWeight()/o1.getTag());
+			}
+			
+
+		});
+		return dests;
+	}
 
 
     /**
-     * Moves the robots on the graph to the dest.
+     * @param gg
+     *move for all robots
+     * @throws JSONException
      */
-    private void moveRobots()
-    {
-        List<String> log = this.game.move();
-        if(log!=null)
-        {
-            long t = this.game.timeToEnd();
+    private void nextMoves(Graph_Gui gg) throws JSONException {
+    	
 
-            for(int i=0;i < log.size();i++)
-            {
-                String robot_json = log.get(i);
-                try
-                {
-                    JSONObject line = new JSONObject(robot_json);
-                    JSONObject ttt = line.getJSONObject("Robot");
-                    int rid = ttt.getInt("id");
-                    int src = ttt.getInt("src");
-                    int dest = ttt.getInt("dest");
+    	JSONObject line;
 
-                    if(dest==-1)
-                    {
-                        dest = this.nextNode(src);
-                        System.out.println("robot: "+rid+" dest "+dest);
-                        this.game.chooseNextEdge(rid, dest);
-                        this.robots[rid].dest = -1;
-                        this.robots[rid].src = dest;
-                        System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-                        System.out.println(ttt);
-                    }
-                }
-                catch (JSONException e) {e.printStackTrace();}
-            }
-        }
+    	ArrayList<ArrayList<Object>>robotToFruit=new ArrayList<ArrayList<Object>>();
+
+    	
+    	
+    	List<edge_data> dests=findFruits(gg);
+    	Graph_Algo algo= new Graph_Algo();
+    	
+    	
+    	algo.init(this.gr);
+    	int dest = 0;
+    	
+    	List<String> s=this.game.getRobots();
+    	double diste, distp = 0;
+    	for(String robot:s) {
+    		line= new JSONObject(robot).getJSONObject("Robot");
+    		Point3D p;
+    		edge_data ed = null;
+    		int src,Id=line.getInt("id");
+    		int speed=line.getInt("speed");
+
+    		for(edge_data e: gr.getE(line.getInt("src"))){
+    			p=new Point3D(line.getString("pos"));
+    			diste=gr.getNode(e.getSrc()).getLocation().distance2D(gr.getNode(e.getDest()).getLocation());
+    			distp=(diste-(gr.getNode(e.getSrc()).getLocation().distance2D(p)+p.distance2D(gr.getNode(e.getDest()).getLocation())));
+    			if(distp<-0.00000001)continue;
+    			distp=gr.getNode(e.getSrc()).getLocation().distance2D(p);
+    			distp/=diste;
+    			distp=e.getWeight()*(1-distp);
+    			dest=e.getDest();
+    			ed=e;
+    			break;
+    			}
+    
+    		ArrayList<Object> dir;
+	
+			for(edge_data fr: dests) {
+				src=line.getInt("src");
+				if(distp<0.000001)src=dest;
+				dir=algo.shortestPathDir(src,fr,distp);
+				dir.add(Id);
+				
+
+				dir.add(speed);
+				dir.add(ed);
+				robotToFruit.add(dir);
+				robotToFruit.get(robotToFruit.size()-1);
+			}
+			Collections.sort(robotToFruit,new Comparator<ArrayList<Object>>() {
+				
+				@Override
+				public int compare(ArrayList<Object> o1, ArrayList<Object> o2) {
+			
+					return Double.compare(((Double) o1.get(0))/(int)o1.get(5),((Double) o2.get(0))/((int)o2.get(5)));
+
+				}
+			});
+			
+
+			while(robotToFruit.size()>0) {
+				ArrayList<Object>byrobot=(robotToFruit.get(0));
+				robotToFruit.removeIf(a->(a.get(4)==byrobot.get(4)||a.get(2)==byrobot.get(2)||a.get(2)==byrobot.get(6)));
+				this.game.chooseNextEdge((int)byrobot.get(4),(int) byrobot.get(3));
+			}
+			
+
+		}
+    	
+    	
+    	
+    	
     }
+    public edge_data getEdge(Point3D p,int type) {
+		double dist;
 
-    private int[] getStartnodes()
-    {
-        return new int[0];
-    }
+    	edge_data ans = null;
+		for(node_data v:gr.getV()) {
+			for(edge_data e: gr.getE(v.getKey())) {
+				dist=(gr.getNode(e.getSrc()).getLocation().distance2D(gr.getNode(e.getDest()).getLocation()))-(gr.getNode(e.getSrc()).getLocation().distance2D(p)+p.distance2D(gr.getNode(e.getDest()).getLocation()));
+
+				if((type==1&&e.getDest()<e.getSrc())||type!=1&&e.getDest()>e.getSrc())continue;
+
+				
+				if(dist>=-0.00000001)return e;
+
+				
+				}	
+				
+			}
+		System.out.println("found no edge!!!!");
+
+    	return ans;
+		
+	}
+
 
     /**
      * Runs the entire game.
@@ -246,15 +362,21 @@ public class MyGameGUI
     	int score=calcScore();
     	
 
-    	
+    	String[] options2= {"play again"};
     	pane= new JOptionPane(
     		    "Your score is: "+score,
-    		    JOptionPane.INFORMATION_MESSAGE);
+    		    JOptionPane.PLAIN_MESSAGE,
+    		    JOptionPane.YES_OPTION,
+    		    null,     //do not use a custom Icon
+    		    options2  //the titles of buttons
+    		    );
     	
     	dialog=pane.createDialog(null);
 //    	dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     	dialog.setVisible(true);
-    	System.exit(0);
+    	System.out.println(pane.getValue());
+    	if(pane.getValue()==null)System.exit(0);
+    	runGui();
 //    	boolean manual=("Manual".equals(pane.getValue()));
     	
 //    	

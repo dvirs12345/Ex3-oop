@@ -715,38 +715,18 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	}
 
 	// create the menu bar (changed to private)
-	private static JMenuBar createMenuBar() {
-		JMenuBar menuBar = new JMenuBar();
-		JMenu menu = new JMenu("File");
-		menuBar.add(menu);
-		
-		JMenu algo = new JMenu("Algorithems");
-		menuBar.add(algo);
-		JMenuItem algo1 = new JMenuItem(" Shortest Path ");
-		algo.add(algo1);
-		algo1.addActionListener(new ActionListener() { // Adds a listener function
-		    @Override
-		    public void actionPerformed(ActionEvent arg0)
-		    {
-		    	Graph_Gui.display_shortestPath();
-		    }
-		});
-		JMenuItem algo2 = new JMenuItem(" TSP ");
-		algo.add(algo2);
-		algo2.addActionListener(new ActionListener() { // Adds a listener function
-		    @Override
-		    public void actionPerformed(ActionEvent arg0)
-		    {
-		    	Graph_Gui.display_TSP();
-		    }
-		});		
-		JMenuItem menuItem1 = new JMenuItem(" Save...   ");
-		menuItem1.addActionListener(std);
-		menuItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menu.add(menuItem1);
-		return menuBar;
-	}
+		private static JMenuBar createMenuBar() {
+			JMenuBar menuBar = new JMenuBar();
+			JMenu menu = new JMenu("File");
+			menuBar.add(menu);
+			JMenuItem menuItem1 = new JMenuItem(" Save...   ");
+			menuItem1.addActionListener(std);
+			menuItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+					Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			menu.add(menuItem1);
+			return menuBar;
+		}
+
 
 	/***************************************************************************
 	 *  User and screen coordinate systems.

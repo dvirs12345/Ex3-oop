@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +29,8 @@ public class Graph_Gui
 {
 	static graph g1; // The graph.
 	private double maxX , maxY, minX, minY; // Size of the graph.
-
+	public ArrayList<ArrayList<Double>> f_E=new ArrayList<ArrayList<Double>>();
+	
 	public Graph_Gui() { ; }
 
 	public void drawTimer(double timer)
@@ -117,92 +119,7 @@ public class Graph_Gui
 	/**
 	 * Makes the screen for choosing the scenario.
 	 */
- 	public void makeScenerioWindow()
-	{
-		JFrame frame= new JFrame();
-		frame.setTitle("Enter wanted scenario");
-
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-
-		JPanel headingPanel = new JPanel();
-
-		JPanel panel = new JPanel();
-//		GridBagConstraints constr = new GridBagConstraints();
-//		constr.insets = new Insets(5, 5, 5, 5);
-//		constr.anchor = GridBagConstraints.WEST;
-
-//		constr.gridx=0;
-//		constr.gridy=0;
-
-		// Declare the required Labels
-		JLabel userNameLabel = new JLabel("Enter scenario number (0-23) :");
-
-		// Declare Text fields
-		JTextField userNameTxt = new JTextField(20);
-
-		panel.add(userNameLabel);
-//		constr.gridx=1;
-		panel.add(userNameTxt);
-//		constr.gridx=0; constr.gridy = 1;
-
-//		constr.gridwidth = 2;
-//		constr.anchor = GridBagConstraints.CENTER;
-
-		JButton button = new JButton("Automatic Game");
-		// add a listener to button
-		button.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				MyGameGUI mgg = new MyGameGUI();
-				try
-				{
-					int scenario = Integer.parseInt(userNameTxt.getText());
-//					frame.setVisible(false);
-					mgg.initiateGame(scenario);
-				}
-				catch (JSONException ex)
-				{
-					ex.printStackTrace();
-				}
-			}
-		});
-		JButton button2 = new JButton("Manual Game");
-		// add a listener to button
-		button2.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				MyGameGUI mgg = new MyGameGUI();
-				try
-				{
-					int scenario = Integer.parseInt(userNameTxt.getText());
-					frame.setVisible(false);
-					System.out.println(scenario);
-					mgg.initiateManualGame(scenario);
-				}
-				catch (JSONException ex)
-				{
-					ex.printStackTrace();
-				}
-			}
-		});
-		// Add label and button to panel
-		panel.add(button);
-		
-		panel.add(button2);
-		mainPanel.add(headingPanel);
-		mainPanel.add(panel);
-
-		// Add panel to frame
-		frame.add(mainPanel);
-		frame.pack();
-		frame.setSize(400, 400);
-		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
-	}
+ 	
 
 	/**
 	 * @param c - Collection of nodes.
@@ -273,7 +190,16 @@ public class Graph_Gui
 				}
 			}	
 		}
+		double size=StdDraw.getPenRadius();
+		StdDraw.setPenRadius(size*1.5);
+		for(ArrayList<Double> e:f_E ) {
+			
+			
+			if(e.get(4)==1)StdDraw.setPenColor(Color.RED);
+			else {StdDraw.setPenColor(Color.YELLOW);}
 
+			StdDraw.line(e.get(0), e.get(1), e.get(2), e.get(3));
+		}
 
 		// The Nodes drawing part.
 		
@@ -304,225 +230,7 @@ public class Graph_Gui
 		return bd.doubleValue();
 	}
 
-	/**
-	 * Displays the shortest path on the graph.
-	 */
-	public static void display_shortestPath() 
-	{
-		JFrame frame= new JFrame(); 
-        frame.setTitle("Enter wanted variables");
-         
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
- 
-        JPanel headingPanel = new JPanel();
-         
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints constr = new GridBagConstraints();
-        constr.insets = new Insets(5, 5, 5, 5);     
-        constr.anchor = GridBagConstraints.WEST;
- 
-        constr.gridx=0;
-        constr.gridy=0;
-  
-        // Declare the required Labels
-        JLabel userNameLabel = new JLabel("Source :");
-        JLabel pwdLabel = new JLabel("Destenation :");
-         
-        // Declare Text fields
-        JTextField userNameTxt = new JTextField(20);
-        JTextField pwdTxt = new JTextField(20);
-         
-        panel.add(userNameLabel, constr);
-        constr.gridx=1;
-        panel.add(userNameTxt, constr);
-        constr.gridx=0; constr.gridy = 1;
-         
-        panel.add(pwdLabel, constr);
-        constr.gridx=1;
-        panel.add(pwdTxt, constr);
-        constr.gridx=0; constr.gridy = 2;
-         
-        constr.gridwidth = 2;
-        constr.anchor = GridBagConstraints.CENTER;
-  
-        JButton button = new JButton("Enter");
-        // add a listener to button
-        button.addActionListener(new ActionListener()
-        {
-        	public void actionPerformed(ActionEvent e)
-        	{
-        		change_graph1(Integer.parseInt(userNameTxt.getText()), Integer.parseInt(pwdTxt.getText()));
-        	}
-        });
-  
-       // Add label and button to panel
-       panel.add(button, constr);
-  
-       mainPanel.add(headingPanel);
-       mainPanel.add(panel);
- 
-        // Add panel to frame
-       frame.add(mainPanel);
-       frame.pack();
-       frame.setSize(400, 400);
-       frame.setLocationRelativeTo(null);
-       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-       frame.setVisible(true);
-	}
-	
-	/**
-	 * Displays the TSP result on the graph
-	 */
-	public static void display_TSP() 
-	{
-		JFrame frame= new JFrame(); 
-        frame.setTitle("Enter wanted variables");
-         
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
- 
-        JPanel headingPanel = new JPanel();
-         
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints constr = new GridBagConstraints();
-        constr.insets = new Insets(5, 5, 5, 5);     
-        constr.anchor = GridBagConstraints.WEST;
- 
-        constr.gridx=0;
-        constr.gridy=0;
-  
-        // Declare the required Labels
-        JLabel userNameLabel = new JLabel("Enter integers seperate by , :");
-         
-        // Declare Text fields
-        JTextField userNameTxt = new JTextField(20);
-         
-        panel.add(userNameLabel, constr);
-        constr.gridx=1;
-        panel.add(userNameTxt, constr);
-        constr.gridx=0; constr.gridy = 1;
-         
-        constr.gridwidth = 2;
-        constr.anchor = GridBagConstraints.CENTER;
-  
-        JButton button = new JButton("Enter");
-        // add a listener to button
-        button.addActionListener(new ActionListener()
-        {
-        	public void actionPerformed(ActionEvent e)
-        	{
-        		String[] arr1 = userNameTxt.getText().split(",");
-        		List<Integer> temp = new LinkedList<Integer>();
-        		
-        		for (int i = 0; i < arr1.length; i++)
-					temp.add(Integer.parseInt(arr1[i]));
-        		
-        		change_graph2(temp);
-        	}
-        });
-  
-       // Add label and button to panel
-       panel.add(button, constr);
-  
-       mainPanel.add(headingPanel);
-       mainPanel.add(panel);
- 
-        // Add panel to frame
-       frame.add(mainPanel);
-       frame.pack();
-       frame.setSize(400, 400);
-       frame.setLocationRelativeTo(null);
-       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-       frame.setVisible(true);
-	}
-	
-	/**
-	 * This function draws the path from the given src to the dest given by shortest_path on the graph.
-	 * @param src - The source node id
-	 * @param dest - The destination node id
-	 */
-	public static void change_graph1(int src, int dest) 
-	{
-		Graph_Algo ga = new Graph_Algo();
-		ga.init(g1);
-		List<node_data> path = ga.shortestPath(src, dest);
-		
-		StdDraw.setPenRadius(0.01);
-		StdDraw.setPenColor(StdDraw.YELLOW);
-		
-		double srcX,srcY,destX,destY;
-		
-		for (int i = 0; i < path.size()-1;i++) // Iterates over the path. 
-		{
-			node_data iterable_element = path.get(i);
-			srcX = iterable_element.getLocation().x();
-			srcY = iterable_element.getLocation().y();		
-			destX = path.get(i+1).getLocation().x();
-			destY = path.get(i+1).getLocation().y();
-			
-			StdDraw.line(srcX, srcY, destX, destY);
-		}
-		
-		StdDraw.setPenRadius(0.025);
-		StdDraw.setPenColor(StdDraw.BLUE);
-		double x, y;
-		
-		for (node_data iterable_element : path) // Iterates over Nodes and makes their points on the graph.
-		{
-			if(iterable_element.getLocation() == null) 
-				throw new RuntimeException("The Location of this node is null: "+iterable_element.getKey()); 
-			
-			x = iterable_element.getLocation().x();
-			y = iterable_element.getLocation().y();
-			
-			StdDraw.text(x, y+0.05, Integer.toString(iterable_element.getKey()));
-			StdDraw.point(x, y);
-		}
-	} 
-	
-	/**
-	 * This function draws the path given by TSP on the graph when given the List.
-	 * @param l1 - The list needed for TSP.
-	 */
-	public static void change_graph2(List<Integer> l1) 
-	{
-		Graph_Algo ga = new Graph_Algo();
-		ga.init(g1);
-		List<node_data> path = ga.TSP(l1);
-		
-		StdDraw.setPenRadius(0.01);
-		StdDraw.setPenColor(StdDraw.YELLOW);
-		
-		double srcX,srcY,destX,destY;
-		
-		for (int i = 0; i < path.size()-1;i++) // Iterates over the path. 
-		{
-			node_data iterable_element = path.get(i);
-			srcX = iterable_element.getLocation().x();
-			srcY = iterable_element.getLocation().y();		
-			destX = path.get(i+1).getLocation().x();
-			destY = path.get(i+1).getLocation().y();
-			
-			StdDraw.line(srcX, srcY, destX, destY);
-		}
-		
-		StdDraw.setPenRadius(0.025);
-		StdDraw.setPenColor(StdDraw.BLUE);
-		double x, y;
-		
-		for (node_data iterable_element : path) // Iterates over Nodes and makes their points on the graph.
-		{
-			if(iterable_element.getLocation() == null) 
-				throw new RuntimeException("The Location of this node is null: "+iterable_element.getKey()); 
-			
-			x = iterable_element.getLocation().x();
-			y = iterable_element.getLocation().y();
-			
-			StdDraw.text(x, y+0.05, Integer.toString(iterable_element.getKey()));
-			StdDraw.point(x, y);
-		}
-	}
+
 	
 	/**
 	 * This function saves the graph as filename.
@@ -538,5 +246,16 @@ public class Graph_Gui
 		{
 			throw new RuntimeException("filename shouldn't be null! ");
 		}
+	}
+
+	public void drowE(double x0, double y0, double x1, double y1, Double type) {
+		ArrayList<Double> e=new ArrayList<Double>();
+		e.add(x0);
+		e.add(y0);
+		e.add(x1);
+		e.add(y1);
+		e.add(type);
+		f_E.add(e);
+		
 	}
 }

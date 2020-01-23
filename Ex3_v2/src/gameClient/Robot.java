@@ -1,5 +1,7 @@
 package gameClient;
 
+import java.util.ArrayList;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import utils.Point3D;
@@ -10,8 +12,10 @@ public class Robot
     public double value;
     public int src; // Source
     public int dest; // destination
-    private double speed = 1.0; // Speed
+    public double speed = 1.0; // Speed
     public Point3D pos; // Position
+    public double timeToDest;
+    public ArrayList<Integer> claimedPath;
 
     public Robot(){; }
     public Robot(String robostr) throws JSONException
