@@ -190,11 +190,12 @@ public class Graph_Gui
 				}
 			}	
 		}
-		double size=StdDraw.getPenRadius();
+		double x, y;
+		double size = StdDraw.getPenRadius();
 		StdDraw.setPenRadius(size*1.5);
 		for(ArrayList<Double> e:f_E ) {
-			
-			
+
+
 			if(e.get(4)==1)StdDraw.setPenColor(Color.RED);
 			else {StdDraw.setPenColor(Color.YELLOW);}
 
@@ -202,10 +203,28 @@ public class Graph_Gui
 		}
 
 		// The Nodes drawing part.
+
+		StdDraw.setPenRadius(0.025);
+		StdDraw.setPenColor(StdDraw.BLUE);
+
+		for (node_data iterable_element : vertecies) // Iterates over Nodes and makes their points on the graph.
+		{
+			if(iterable_element.getLocation() == null)
+				throw new RuntimeException("The Location of this node is null: "+iterable_element.getKey());
+
+			x = iterable_element.getLocation().x();
+			y = iterable_element.getLocation().y();
+
+			StdDraw.text(x, y+0.05, Integer.toString(iterable_element.getKey()));
+			StdDraw.point(x, y);
+		}
+
+
+		// The Nodes drawing part.
 		
 		StdDraw.setPenRadius(0.025);
 		StdDraw.setPenColor(StdDraw.BLUE);
-		double x, y;
+		
 		
 		for (node_data iterable_element : vertecies) // Iterates over Nodes and makes their points on the graph.
 		{
@@ -218,17 +237,10 @@ public class Graph_Gui
 			StdDraw.text(x, y+0.05, Integer.toString(iterable_element.getKey()));
 			StdDraw.point(x, y);
 		}
+		
 	}
 
 
-	private static double round(double value, int places)
-	{
-		if (places < 0) throw new IllegalArgumentException();
-
-		BigDecimal bd = BigDecimal.valueOf(value);
-		bd = bd.setScale(places, RoundingMode.HALF_UP);
-		return bd.doubleValue();
-	}
 
 
 	

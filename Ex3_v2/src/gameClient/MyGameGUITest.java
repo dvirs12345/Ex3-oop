@@ -1,16 +1,13 @@
 package gameClient;
 
-import Server.Game_Server;
-import Server.game_service;
-import dataStructure.DGraph;
-import gui.Graph_Gui;
-import oop_dataStructure.OOP_DGraph;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
+
+
+
 
 import java.io.FileNotFoundException;
 import java.util.concurrent.TimeUnit;
+
+import org.json.JSONException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,28 +17,35 @@ class MyGameGUITest
     void init() throws JSONException, InterruptedException
     {
         MyGameGUI mgg = new MyGameGUI();
-        mgg.init(0);
+        //mgg.init(0);
         TimeUnit.SECONDS.sleep(60);
     }
 
 //    @org.junit.jupiter.api.Test
-    void initiateGame() throws JSONException
+    void initiateGame() throws JSONException, FileNotFoundException {
+        MyGameGUI mgg = new MyGameGUI();
+        mgg.initiateGame4(-31);
+    }
+
+//    @org.junit.Test
+    void initiatManualeGame() throws JSONException
     {
         MyGameGUI mgg = new MyGameGUI();
-        mgg.initiateGame(20);
+        mgg.initiateManualGame(20);
     }
-//  @Test
-  void initiatManualeGame() throws JSONException
-  {
-      MyGameGUI mgg = new MyGameGUI();
-      mgg.initiateManualGame(20);
-  }
 
     @org.junit.jupiter.api.Test
     void runGui() throws JSONException, InterruptedException, FileNotFoundException
     {
         MyGameGUI mgg = new MyGameGUI();
-        mgg.runGui();
+        mgg.runGui(true);
         TimeUnit.SECONDS.sleep(60);
+    }
+
+//    @org.junit.jupiter.api.Test
+    void displayAll() throws JSONException {
+        MyGameGUI mgg = new MyGameGUI();
+        mgg.scenario = 0;
+        //mgg.displayall();
     }
 }

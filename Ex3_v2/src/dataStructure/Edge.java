@@ -3,7 +3,6 @@ package dataStructure;
  * A class implementing edge_data.
  * @author Dvir Sadon
  */
-
 public class Edge implements edge_data
 {
 
@@ -60,4 +59,3 @@ public class Edge implements edge_data
 
 
 }
- 
