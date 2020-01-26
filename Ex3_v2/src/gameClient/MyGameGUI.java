@@ -66,7 +66,7 @@ public class MyGameGUI {
         this.kmllogger = new KML_Logger(this.scenario);
         Graph_Gui ggui = new Graph_Gui();
 
-        int id = 203381645;
+        int id = 000000000;
         Game_Server.login(id);
         this.game = Game_Server.getServer(this.scenario);
         String g = this.game.getGraph();
@@ -93,7 +93,7 @@ public class MyGameGUI {
 
         /* Draw starting fruits */
         List<String> fruits = this.game.getFruits();
-        System.out.println(fruits.get(0));
+//        System.out.println(fruits.get(0));
         this.fruits = ggui.drawFruits(fruits);
 
         /* Draw the timer */
@@ -117,7 +117,7 @@ public class MyGameGUI {
         /* Run the game */
         this.game.startGame();
         time=(int) game.timeToEnd();
-        System.out.println(time);
+//        System.out.println(time);
         int counter = 0;
         /* Run the robots automatically */
 
@@ -373,7 +373,7 @@ public class MyGameGUI {
 
         dialog.dispose();
 
-        System.out.println(scn);
+//        System.out.println(scn);
         String[] options = {"Auto", "Manual"};
 
         pane = new JOptionPane(
@@ -409,7 +409,7 @@ public class MyGameGUI {
         dialog = pane.createDialog(null);
 //    	dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         dialog.setVisible(true);
-        System.out.println(pane.getValue());
+//        System.out.println(pane.getValue());
         System.out.println(game.toString());
         if (pane.getValue() == null) System.exit(0);
         runGui();
